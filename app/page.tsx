@@ -103,22 +103,22 @@ const productImage = (id: string) => PRODUCTS.find((p) => p.id === id)?.image ??
 const PICKS: { title: string; query: string; image: string; imageClass?: string }[] = [
   {
     title: "Ergonomic",
-    query: "Recommend the best ergonomic office chair for all-day work — is a Herman Miller worth it, new or refurbished?",
+    query: "I'm looking for an ergonomic office chair.",
     image: ERGONOMIC_IMAGE,
   },
   {
     title: "Executive",
-    query: "Recommend a premium high-back executive office chair for long workdays.",
+    query: "I'm looking for an executive office chair.",
     image: productImage("regent-executive"),
   },
   {
     title: "Lounge & accent",
-    query: "What's a comfortable lounge chair for a home-office reading corner?",
+    query: "I'm looking for a lounge or accent chair.",
     image: productImage("aria-swivel-lounge"),
   },
   {
     title: "Gaming chairs",
-    query: "What's the best gaming chair for long sessions with strong lower-back support, under $500?",
+    query: "I'm looking for a gaming chair.",
     image: GAMING_IMAGE,
   },
 ];
