@@ -240,9 +240,8 @@ export default function Home() {
       {/* Brand bar */}
       <header className="border-b border-[var(--border)] bg-white/80 backdrop-blur">
         <div className="mx-auto flex max-w-2xl items-center gap-2 px-4 py-3">
-          <span className="grid h-7 w-7 place-items-center rounded-lg bg-[var(--brand)] text-white shadow-sm">
-            <ChairGlyph className="h-4 w-4" />
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.svg" alt="Chair Agent logo" className="h-8 w-8 rounded-lg shadow-sm" />
           <div>
             <h1 className="text-sm font-semibold tracking-tight">Chair Agent</h1>
             <p className="text-[11px] text-[var(--muted)]">Your personal chair researcher</p>
@@ -433,14 +432,6 @@ function ShareGlyph({ className = "" }: { className?: string }) {
       <circle cx="6" cy="12" r="2.5" />
       <circle cx="18" cy="19" r="2.5" />
       <path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function ChairGlyph({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className={className}>
-      <path d="M7 4v8m10-8v8M6 12h12M8 12l-1 6m9-6l1 6M9 20h6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
