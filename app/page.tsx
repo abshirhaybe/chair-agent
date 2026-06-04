@@ -398,30 +398,21 @@ export default function Home() {
 }
 
 /**
- * Share button shown under a recommendation. Uses the native share sheet when
- * available (mobile / supported browsers), otherwise copies the buy link to the
- * clipboard with brief "Copied!" feedback.
+ * Share button shown under a recommendation. On phones / supported browsers it
+ * opens the native share sheet; everywhere else it opens the buy page directly
+ * in a new tab (no copy-paste).
  */
 function ShareBuyLink({ url, label }: { url: string; label: string }) {
-  const [copied, setCopied] = useState(false);
-
   const share = async () => {
-    const data: ShareData = { title: "Chair recommendation", text: label, url };
     if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
       try {
-        await navigator.share(data);
+        await navigator.share({ title: "Chair recommendation", text: label, url });
         return;
       } catch {
-        // user cancelled or share failed — fall through to clipboard copy
+        // user cancelled or share failed — fall through to opening the page
       }
     }
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // clipboard unavailable (e.g. insecure context) — nothing else to do
-    }
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -430,7 +421,7 @@ function ShareBuyLink({ url, label }: { url: string; label: string }) {
       className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-white px-3.5 py-1.5 text-xs font-medium text-[var(--brand)] shadow-sm transition-pop hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-md active:translate-y-0"
     >
       <ShareGlyph className="h-3.5 w-3.5" />
-      {copied ? "Link copied!" : "Share this chair"}
+      Share this chair
     </button>
   );
 }
