@@ -13,6 +13,13 @@ export const maxDuration = 300;
  * "claude-sonnet-4-6" (mid) or "claude-opus-4-8" (best).
  */
 const MODEL = "claude-haiku-4-5-20251001";
+/**
+ * Adaptive thinking is only supported on Opus/Sonnet, not Haiku. Send it only
+ * when the model supports it; omit it (no extended thinking) otherwise.
+ */
+const THINKING: Anthropic.ThinkingConfigParam | undefined = MODEL.startsWith("claude-haiku")
+  ? undefined
+  : { type: "adaptive" };
 /** Streaming, so we can afford a generous output ceiling without HTTP timeouts. */
 const MAX_TOKENS = 64_000;
 /** Safety cap on the agent loop so a misbehaving turn can't run forever. */
@@ -144,7 +151,7 @@ async function runAgent(
       {
         model: MODEL,
         max_tokens: MAX_TOKENS,
-        thinking: { type: "adaptive" },
+        ...(THINKING ? { thinking: THINKING } : {}),
         ...(system ? { system } : {}),
         messages: conversation,
         tools,
