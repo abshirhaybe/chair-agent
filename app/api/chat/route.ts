@@ -7,8 +7,12 @@ export const runtime = "nodejs";
 // allows it (Vercel: depends on plan); lower if you want a tighter ceiling.
 export const maxDuration = 300;
 
-/** Latest, most capable model. Adaptive thinking is the only thinking mode here. */
-const MODEL = "claude-opus-4-8";
+/**
+ * Haiku: cheapest model (~15x cheaper than Opus) — chosen for high-volume
+ * testing. For best research quality / link verification, bump to
+ * "claude-sonnet-4-6" (mid) or "claude-opus-4-8" (best).
+ */
+const MODEL = "claude-haiku-4-5-20251001";
 /** Streaming, so we can afford a generous output ceiling without HTTP timeouts. */
 const MAX_TOKENS = 64_000;
 /** Safety cap on the agent loop so a misbehaving turn can't run forever. */
