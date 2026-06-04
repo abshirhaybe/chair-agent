@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /**
  * A resilient product image. Shows a shimmer skeleton until the photo loads,
@@ -17,6 +17,20 @@ export function ProductImage({
   className?: string;
 }) {
   const [status, setStatus] = useState<"loading" | "loaded" | "error">("loading");
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  // A cached image can finish loading before React attaches onLoad (common with
+  // SSR'd markup), leaving status stuck on "loading" and the image invisible.
+  // Catch that by checking the element's load state on mount / when src changes.
+  useEffect(() => {
+    const img = imgRef.current;
+    if (!img) return;
+    if (img.complete) {
+      setStatus(img.naturalWidth > 0 ? "loaded" : "error");
+    } else {
+      setStatus("loading");
+    }
+  }, [src]);
 
   if (status === "error") {
     return (
@@ -37,6 +51,7 @@ export function ProductImage({
       )}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
+        ref={imgRef}
         src={src}
         alt={alt}
         loading="lazy"
