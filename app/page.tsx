@@ -56,6 +56,27 @@ const MARKDOWN_COMPONENTS: Components = {
   ),
 };
 
+/**
+ * Pull the purchase link out of an assistant answer. The agent formats buy links
+ * as `[Buy the … at Retailer — $X](url)`, so we prefer a link whose text mentions
+ * "buy"; otherwise the first link after a "where to buy" heading. Returns null
+ * when the message has no buy link yet (e.g. clarifying questions, mid-stream).
+ */
+function extractBuyLink(text: string): { label: string; url: string } | null {
+  const links = Array.from(text.matchAll(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g));
+  if (links.length === 0) return null;
+
+  const buy = links.find((m) => /\bbuy\b/i.test(m[1]));
+  if (buy) return { label: buy[1], url: buy[2] };
+
+  const whereIdx = text.search(/where to buy/i);
+  if (whereIdx !== -1) {
+    const after = links.find((m) => (m.index ?? 0) > whereIdx);
+    if (after) return { label: after[1], url: after[2] };
+  }
+  return null;
+}
+
 /** One-tap prompts shown on the empty state. */
 const SUGGESTIONS = [
   "Best ergonomic chair for tall users under $1000",
@@ -311,13 +332,15 @@ export default function Home() {
                     </div>
                   );
                 }
+                const buy = extractBuyLink(item.text);
                 return (
-                  <div key={item.id} className="flex justify-start">
+                  <div key={item.id} className="flex flex-col items-start gap-2">
                     <div className="prose prose-sm prose-stone max-w-none rounded-2xl rounded-bl-sm border border-[var(--border)] bg-white px-4 py-3 shadow-sm transition-pop hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-md prose-pre:bg-stone-100 prose-pre:text-stone-800">
                       <ReactMarkdown remarkPlugins={[remarkGfm]} components={MARKDOWN_COMPONENTS}>
                         {item.text}
                       </ReactMarkdown>
                     </div>
+                    {buy && <ShareBuyLink url={buy.url} label={buy.label} />}
                   </div>
                 );
               })}
@@ -371,6 +394,55 @@ export default function Home() {
         </div>
       </div>
     </main>
+  );
+}
+
+/**
+ * Share button shown under a recommendation. Uses the native share sheet when
+ * available (mobile / supported browsers), otherwise copies the buy link to the
+ * clipboard with brief "Copied!" feedback.
+ */
+function ShareBuyLink({ url, label }: { url: string; label: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const share = async () => {
+    const data: ShareData = { title: "Chair recommendation", text: label, url };
+    if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+      try {
+        await navigator.share(data);
+        return;
+      } catch {
+        // user cancelled or share failed — fall through to clipboard copy
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // clipboard unavailable (e.g. insecure context) — nothing else to do
+    }
+  };
+
+  return (
+    <button
+      onClick={share}
+      className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-white px-3.5 py-1.5 text-xs font-medium text-[var(--brand)] shadow-sm transition-pop hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-md active:translate-y-0"
+    >
+      <ShareGlyph className="h-3.5 w-3.5" />
+      {copied ? "Link copied!" : "Share this chair"}
+    </button>
+  );
+}
+
+function ShareGlyph({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className={className}>
+      <circle cx="18" cy="5" r="2.5" />
+      <circle cx="6" cy="12" r="2.5" />
+      <circle cx="18" cy="19" r="2.5" />
+      <path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4" strokeLinecap="round" />
+    </svg>
   );
 }
 
