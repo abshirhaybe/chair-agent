@@ -3,12 +3,48 @@
 @tailwind utilities;
 
 :root {
-  --background: #fafaf9;
-  --foreground: #1c1917;
+  /* Stripe-inspired palette: soft blue-grey canvas, deep navy ink, blurple accent. */
+  --background: #f6f9fc;
+  --foreground: #0a2540;
+
+  --brand: #635bff;
+  --brand-dark: #4f46e5;
+  --muted: #425466;
+  --border: #e6ebf1;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+}
+
+::selection {
+  background: rgba(99, 91, 255, 0.18);
+}
+
+/* Stripe-style angled gradient band, used behind the header. */
+.gradient-band {
+  background:
+    radial-gradient(120% 120% at 85% 8%, rgba(54, 197, 240, 0.55) 0%, rgba(54, 197, 240, 0) 45%),
+    linear-gradient(110deg, #7a5cff 0%, #635bff 35%, #4d8bf5 70%, #36c5f0 100%);
+}
+
+/*
+ * Shared transition for the "pop on hover" interactions. A springy ease so
+ * hovered elements lift smoothly and settle, rather than snapping.
+ */
+.transition-pop {
+  transition:
+    transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.18s cubic-bezier(0.2, 0.8, 0.2, 1),
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .transition-pop {
+    transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+  }
 }
